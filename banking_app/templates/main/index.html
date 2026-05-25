@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content_public %}
+<div style="background: linear-gradient(135deg, #003366 0%, #005599 100%); min-height: 85vh;" class="d-flex align-items-center">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 text-white py-5">
+        <h1 class="display-4 fw-bold mb-4">Banking That <span style="color:#FFD700;">Works For You</span></h1>
+        <p class="lead mb-4 opacity-75">Secure, fast, and reliable banking. Manage accounts, transfers, and loans all in one place.</p>
+        <div class="d-flex gap-3 flex-wrap">
+          <a href="{{ url_for('auth.register') }}" class="btn btn-warning btn-lg fw-bold px-4">
+            <i class="fas fa-user-plus me-2"></i>Open Account
+          </a>
+          <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-4">
+            <i class="fas fa-sign-in-alt me-2"></i>Login
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-6 text-center py-5">
+        <i class="fas fa-university" style="font-size:12rem; color:rgba(255,215,0,0.2);"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="text-center mb-5">
+    <h2 class="fw-bold" style="color:#003366;">Why Choose Secure Bank?</h2>
+  </div>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm text-center p-4 h-100" style="border-radius:16px;">
+        <i class="fas fa-shield-alt fa-3x mb-3" style="color:#FFD700;"></i>
+        <h5 class="fw-bold" style="color:#003366;">Secure & Protected</h5>
+        <p class="text-muted">Industry-standard encryption protects your money 24/7.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm text-center p-4 h-100" style="border-radius:16px;">
+        <i class="fas fa-bolt fa-3x mb-3" style="color:#FFD700;"></i>
+        <h5 class="fw-bold" style="color:#003366;">Instant Transfers</h5>
+        <p class="text-muted">Send and receive money instantly between accounts.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm text-center p-4 h-100" style="border-radius:16px;">
+        <i class="fas fa-hand-holding-usd fa-3x mb-3" style="color:#FFD700;"></i>
+        <h5 class="fw-bold" style="color:#003366;">Easy Loans</h5>
+        <p class="text-muted">Apply for loans with competitive rates and fast approval.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content_public %}

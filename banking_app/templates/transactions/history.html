@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+  <h2 class="fw-bold mb-4" style="color:#003366;">Transaction History</h2>
+  <div class="card border-0 shadow-sm" style="border-radius:12px;">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead style="background:#003366; color:white;">
+            <tr>
+              <th class="ps-4 py-3">Reference</th>
+              <th>Type</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th class="pe-4">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for txn in transactions %}
+            <tr>
+              <td class="ps-4"><code class="small">{{ txn.transaction_id }}</code></td>
+              <td><span class="badge bg-primary">{{ txn.transaction_type.value }}</span></td>
+              <td class="small">{{ txn.from_account.account_number if txn.from_account else '-' }}</td>
+              <td class="small">{{ txn.to_account.account_number if txn.to_account else '-' }}</td>
+              <td class="fw-bold">PKR {{ "{:,.2f}".format(txn.amount) }}</td>
+              <td>
+                <span class="badge bg-{{ 'success' if txn.status.value == 'success' else 'warning' if txn.status.value == 'pending' else 'danger' }}">
+                  {{ txn.status.value }}
+                </span>
+              </td>
+              <td class="pe-4 text-muted small">{{ txn.timestamp.strftime('%d %b %Y, %I:%M %p') if txn.timestamp else '-' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center py-5 text-muted">No transactions found</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

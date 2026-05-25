@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4 px-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-0" style="color:#003366;">Admin Control Panel</h3>
+      <small class="text-muted">Full system overview — {{ now().strftime('%A, %d %B %Y') if now else '' }}</small>
+    </div>
+    <div>
+      <a href="{{ url_for('admin.create_user') }}" class="btn btn-sm fw-semibold me-2" style="background:#FFD700;color:#003366;">
+        <i class="fas fa-user-plus me-1"></i>New User
+      </a>
+      <a href="{{ url_for('admin.create_account') }}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-plus me-1"></i>New Account
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-xl-2">
+      <a href="{{ url_for('admin.users') }}" class="text-decoration-none">
+        <div class="card border-0 shadow-sm" style="border-radius:12px;">
+          <div class="card-body text-center py-3">
+            <i class="fas fa-users fa-2x mb-2" style="color:#003366;"></i>
+            <h4 class="fw-bold mb-0" style="color:#003366;">{{ stats.total_users }}</h4>
+            <small class="text-muted">Total Users</small>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+      <a href="{{ url_for('admin.users', role='client') }}" class="text-decoration-none">
+        <div class="card border-0 shadow-sm" style="border-radius:12px;">
+          <div class="card-body text-center py-3">
+            <i class="fas fa-user fa-2x mb-2" style="color:#1a5276;"></i>
+            <h4 class="fw-bold mb-0" style="color:#1a5276;">{{ stats.total_clients }}</h4>
+            <small class="text-muted">Clients</small>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+      <a href="{{ url_for('admin.users', role='staff') }}" class="text-decoration-none">
+        <div class="card border-0 shadow-sm" style="border-radius:12px;">
+          <div class="card-body text-center py-3">
+            <i class="fas fa-user-tie fa-2x mb-2" style="color:#0e6655;"></i>
+            <h4 class="fw-bold mb-0" style="color:#0e6655;">{{ stats.total_staff }}</h4>
+            <small class="text-muted">Staff</small>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+      <a href="{{ url_for('admin.accounts') }}" class="text-decoration-none">
+        <div class="card border-0 shadow-sm" style="border-radius:12px;">
+          <div class="card-body text-center py-3">
+            <i class="fas fa-university fa-2x mb-2" style="color:#154360;"></i>
+            <h4 class="fw-bold mb-0" style="color:#154360;">{{ stats.total_accounts }}</h4>
+            <small class="text-muted">Accounts</small>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+      <a href="{{ url_for('admin.loans', status='pending') }}" class="text-decoration-none">
+        <div class="card border-0 shadow-sm" style="border-radius:12px;">
+          <div class="card-body text-center py-3">
+            <i class="fas fa-file-invoice fa-2x mb-2" style="color:#7d6608;"></i>
+            <h4 class="fw-bold mb-0" style="color:#7d6608;">{{ stats.pending_loans }}</h4>
+            <small class="text-muted">Pending Loans</small>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+      <a href="{{ url_for('admin.transactions') }}" class="text-decoration-none">
+        <div class="card border-0 shadow-sm" style="border-radius:12px;">
+          <div class="card-body text-center py-3">
+            <i class="fas fa-exchange-alt fa-2x mb-2" style="color:#4a235a;"></i>
+            <h4 class="fw-bold mb-0" style="color:#4a235a;">{{ stats.total_transactions }}</h4>
+            <small class="text-muted">Transactions</small>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Quick Nav -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('admin.users') }}" class="btn btn-outline-primary w-100 py-3 fw-semibold">
+        <i class="fas fa-users d-block mb-1" style="font-size:20px;"></i>Manage Users
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('admin.accounts') }}" class="btn btn-outline-success w-100 py-3 fw-semibold">
+        <i class="fas fa-university d-block mb-1" style="font-size:20px;"></i>All Accounts
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('admin.loans') }}" class="btn w-100 py-3 fw-semibold" style="border:1px solid #FFD700;background:#fffde7;color:#7d6608;">
+        <i class="fas fa-file-invoice d-block mb-1" style="font-size:20px;"></i>Loan Requests
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('admin.transactions') }}" class="btn btn-outline-secondary w-100 py-3 fw-semibold">
+        <i class="fas fa-exchange-alt d-block mb-1" style="font-size:20px;"></i>Transactions
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm" style="border-radius:12px;">
+        <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0" style="color:#003366;"><i class="fas fa-file-invoice me-2"></i>Recent Loan Applications</h6>
+          <a href="{{ url_for('admin.loans') }}" class="small">View all</a>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0 small">
+            <thead><tr class="table-light"><th class="ps-3">Client</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+            {% for loan in recent_loans %}
+            <tr>
+              <td class="ps-3">{{ loan.borrower.full_name if loan.borrower else '—' }}</td>
+              <td>PKR {{ "{:,.0f}".format(loan.amount_requested) }}</td>
+              <td>
+                {% if loan.status.value == 'pending' %}<span class="badge bg-warning text-dark">Pending</span>
+                {% elif loan.status.value == 'approved' %}<span class="badge bg-success">Approved</span>
+                {% elif loan.status.value == 'rejected' %}<span class="badge bg-danger">Rejected</span>
+                {% else %}<span class="badge bg-secondary">{{ loan.status.value|title }}</span>{% endif %}
+              </td>
+              <td>{{ loan.applied_at.strftime('%d %b') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-3">No loans yet</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm" style="border-radius:12px;">
+        <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0" style="color:#003366;"><i class="fas fa-exchange-alt me-2"></i>Recent Transactions</h6>
+          <a href="{{ url_for('admin.transactions') }}" class="small">View all</a>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0 small">
+            <thead><tr class="table-light"><th class="ps-3">ID</th><th>Type</th><th>Amount</th><th>Time</th></tr></thead>
+            <tbody>
+            {% for txn in recent_txns %}
+            <tr>
+              <td class="ps-3 font-monospace small">{{ txn.transaction_id }}</td>
+              <td>{{ txn.transaction_type.value|title }}</td>
+              <td>PKR {{ "{:,.2f}".format(txn.amount) }}</td>
+              <td>{{ txn.timestamp.strftime('%d %b %H:%M') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-3">No transactions yet</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

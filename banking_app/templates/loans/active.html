@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4 px-4">
+  <div class="d-flex align-items-center mb-3">
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-sm btn-outline-secondary me-3">
+      <i class="fas fa-arrow-left me-1"></i>Back
+    </a>
+    <h4 class="fw-bold mb-0" style="color:#003366;"><i class="fas fa-file-invoice me-2"></i>Active Loans</h4>
+  </div>
+
+  <div class="card border-0 shadow-sm" style="border-radius:12px;">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-3">Loan ID</th>
+              <th>Borrower</th>
+              <th>Amount Approved</th>
+              <th>EMI / Month</th>
+              <th>Tenure</th>
+              <th>Interest</th>
+              <th>Approved On</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for loan in loans %}
+          <tr>
+            <td class="ps-3 fw-semibold">#{{ loan.id }}</td>
+            <td>
+              {{ loan.borrower.full_name if loan.borrower else '—' }}<br>
+              <small class="text-muted">{{ loan.borrower.email if loan.borrower else '' }}</small>
+            </td>
+            <td class="fw-semibold">PKR {{ "{:,.2f}".format(loan.amount_approved or loan.amount_requested) }}</td>
+            <td class="fw-semibold" style="color:#003366;">
+              PKR {{ "{:,.2f}".format(loan.emi_amount) if loan.emi_amount else '—' }}
+            </td>
+            <td>{{ loan.tenure_months }} months</td>
+            <td>{{ loan.interest_rate }}%</td>
+            <td>{{ loan.approved_at.strftime('%d %b %Y') if loan.approved_at else '—' }}</td>
+            <td>
+              {% if loan.status.value == 'approved' %}<span class="badge bg-success">Approved</span>
+              {% elif loan.status.value == 'active' %}<span class="badge bg-primary">Active</span>
+              {% else %}<span class="badge bg-secondary">{{ loan.status.value|title }}</span>{% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" class="text-center text-muted py-4">No active loans found</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

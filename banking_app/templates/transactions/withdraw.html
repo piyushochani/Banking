@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm" style="border-radius:16px; overflow:hidden;">
+        <div class="card-header py-4 border-0 text-center" style="background:linear-gradient(135deg,#003366,#005599);">
+          <i class="fas fa-arrow-up fa-2x mb-2" style="color:#FFD700;"></i>
+          <h4 class="text-white fw-bold mb-0">Withdraw Funds</h4>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST" action="{{ url_for('transactions.withdraw') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Account</label>
+              <select name="account_id" class="form-select" required>
+                <option value="">Select account</option>
+                {% for account in accounts %}
+                <option value="{{ account.id }}">{{ account.account_number }} — PKR {{ "{:,.2f}".format(account.balance) }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Amount (PKR)</label>
+              <input type="number" name="amount" class="form-control" placeholder="0.00" min="1" step="0.01" required>
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Description (optional)</label>
+              <input type="text" name="description" class="form-control" placeholder="Withdrawal reason">
+            </div>
+            <button type="submit" class="btn w-100 fw-bold py-2" style="background:#FFD700; color:#003366;">
+              <i class="fas fa-minus-circle me-2"></i>Withdraw
+            </button>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

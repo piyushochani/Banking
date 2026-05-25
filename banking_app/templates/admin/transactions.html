@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4 px-4">
+  <h4 class="fw-bold mb-3" style="color:#003366;"><i class="fas fa-exchange-alt me-2"></i>All Transactions</h4>
+  <div class="card border-0 shadow-sm" style="border-radius:12px;">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 small">
+          <thead class="table-light">
+            <tr><th class="ps-3">Ref ID</th><th>Type</th><th>Amount</th><th>From</th><th>To</th><th>Status</th><th>Date & Time</th></tr>
+          </thead>
+          <tbody>
+          {% for txn in txns.items %}
+          <tr>
+            <td class="ps-3 font-monospace">{{ txn.transaction_id }}</td>
+            <td>{{ txn.transaction_type.value|title }}</td>
+            <td class="fw-semibold">PKR {{ "{:,.2f}".format(txn.amount) }}</td>
+            <td>{{ txn.from_account.account_number if txn.from_account else '—' }}</td>
+            <td>{{ txn.to_account.account_number if txn.to_account else '—' }}</td>
+            <td><span class="badge {% if txn.status.value=='success' %}bg-success{% elif txn.status.value=='failed' %}bg-danger{% else %}bg-warning text-dark{% endif %}">{{ txn.status.value|title }}</span></td>
+            <td>{{ txn.timestamp.strftime('%d %b %Y %H:%M') }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="text-center text-muted py-4">No transactions</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% if txns.pages > 1 %}
+    <div class="card-footer bg-white border-0">
+      <nav><ul class="pagination pagination-sm mb-0 justify-content-center">
+        {% for p in txns.iter_pages() %}{% if p %}
+        <li class="page-item {% if p==txns.page %}active{% endif %}">
+          <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+        </li>{% endif %}{% endfor %}
+      </ul></nav>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

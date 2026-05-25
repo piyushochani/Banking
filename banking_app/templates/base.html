@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Banking System{% endblock %} | Secure Bank</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --navy-blue: #003366; --gold: #FFD700; }
+        .bg-navy { background-color: var(--navy-blue) !important; }
+        .navbar-dark .navbar-nav .nav-link { color: rgba(255,255,255,0.85); }
+        .navbar-dark .navbar-nav .nav-link:hover { color: var(--gold); }
+        .navbar-brand { color: white !important; font-weight: bold; }
+        .btn-gold { background-color: var(--gold); color: var(--navy-blue); border: none; font-weight: 600; }
+        .btn-gold:hover { background-color: #e6c200; color: var(--navy-blue); }
+        .text-gold { color: var(--gold) !important; }
+        .border-gold { border-color: var(--gold) !important; }
+        .role-badge { font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 20px;
+                      background-color: var(--gold); color: var(--navy-blue); font-weight: 600; margin-left: 0.5rem; }
+        .sidebar { min-height: calc(100vh - 56px); background-color: #f8f9fa; border-right: 1px solid #dee2e6; }
+        .sidebar .nav-link { color: var(--navy-blue); font-weight: 500; border-radius: 0; padding: 0.6rem 1rem; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: var(--navy-blue); color: white; }
+        .sidebar .nav-link i { width: 1.5rem; }
+        .footer { background-color: var(--navy-blue); color: white; padding: 1rem 0; margin-top: auto; }
+        body { display: flex; flex-direction: column; min-height: 100vh; }
+        .main-content { flex: 1; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-navy">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                <i class="fas fa-university me-2"></i>Secure Bank
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        {% if current_user.get_role() == 'client' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('accounts.list') }}">
+                                    <i class="fas fa-credit-card"></i> My Accounts
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('transactions.history') }}">
+                                    <i class="fas fa-history"></i> Transactions
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('loans.my_loans') }}">
+                                    <i class="fas fa-hand-holding-usd"></i> My Loans
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if current_user.get_role() in ['staff', 'admin'] %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('loans.pending_loans') }}">
+                                    <i class="fas fa-clock"></i> Pending Loans
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('loans.active_loans') }}">
+                                    <i class="fas fa-check-circle"></i> Active Loans
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i> {{ current_user.full_name }}
+                                <span class="role-badge">{{ current_user.get_role()|upper }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
+                                    <i class="fas fa-user me-2"></i>Profile
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="btn btn-gold me-2" href="{{ url_for('auth.login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light" href="{{ url_for('auth.register') }}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container-fluid px-4 mt-2">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'info' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid main-content">
+        <div class="row">
+            {% if current_user.is_authenticated %}
+                <!-- Sidebar -->
+                <div class="col-md-2 p-0 sidebar d-none d-md-block">
+                    <div class="nav flex-column mt-2">
+                        {% if current_user.get_role() == 'client' %}
+                            <a class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                            <a class="nav-link {% if request.endpoint == 'accounts.list' %}active{% endif %}" href="{{ url_for('accounts.list') }}">
+                                <i class="fas fa-credit-card"></i> My Accounts
+                            </a>
+                            <a class="nav-link {% if request.endpoint == 'transactions.history' %}active{% endif %}" href="{{ url_for('transactions.history') }}">
+                                <i class="fas fa-history"></i> History
+                            </a>
+                            <a class="nav-link {% if request.endpoint == 'transactions.transfer' %}active{% endif %}" href="{{ url_for('transactions.transfer') }}">
+                                <i class="fas fa-exchange-alt"></i> Transfer
+                            </a>
+                            <a class="nav-link {% if request.endpoint == 'loans.my_loans' %}active{% endif %}" href="{{ url_for('loans.my_loans') }}">
+                                <i class="fas fa-hand-holding-usd"></i> My Loans
+                            </a>
+                            <a class="nav-link {% if request.endpoint == 'loans.apply_loan' %}active{% endif %}" href="{{ url_for('loans.apply_loan') }}">
+                                <i class="fas fa-plus-circle"></i> Apply Loan
+                            </a>
+                        {% elif current_user.get_role() == 'staff' %}
+                            <a class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                            <a class="nav-link {% if request.endpoint == 'loans.pending_loans' %}active{% endif %}" href="{{ url_for('loans.pending_loans') }}">
+                                <i class="fas fa-clock"></i> Pending Loans
+                            </a>
+                            <a class="nav-link {% if request.endpoint == 'loans.active_loans' %}active{% endif %}" href="{{ url_for('loans.active_loans') }}">
+                                <i class="fas fa-check-circle"></i> Active Loans
+                            </a>
+                            <a class="nav-link {% if request.endpoint == 'accounts.list' %}active{% endif %}" href="{{ url_for('accounts.list') }}">
+                                <i class="fas fa-search"></i> Search Accounts
+                            </a>
+                        {% elif current_user.get_role() == 'admin' %}
+                            <a class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                            <a class="nav-link {% if request.endpoint == 'loans.pending_loans' %}active{% endif %}" href="{{ url_for('loans.pending_loans') }}">
+                                <i class="fas fa-inbox"></i> Loan Applications
+                            </a>
+                            <a class="nav-link {% if request.endpoint == 'loans.active_loans' %}active{% endif %}" href="{{ url_for('loans.active_loans') }}">
+                                <i class="fas fa-file-invoice"></i> All Loans
+                            </a>
+                            <a class="nav-link {% if request.endpoint == 'accounts.list' %}active{% endif %}" href="{{ url_for('accounts.list') }}">
+                                <i class="fas fa-university"></i> All Accounts
+                            </a>
+                            <a class="nav-link {% if request.endpoint == 'transactions.history' %}active{% endif %}" href="{{ url_for('transactions.history') }}">
+                                <i class="fas fa-chart-bar"></i> Transactions
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- Content -->
+                <div class="col-md-10 py-4 px-4">
+                    {% block content %}{% endblock %}
+                </div>
+            {% else %}
+                <div class="col-12 py-4">
+                    {% block content_public %}{% endblock %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 Secure Bank. All rights reserved.</p>
+            <small>Protected by industry-standard security</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+      <div class="card border-0 shadow-sm" style="border-radius:16px; overflow:hidden;">
+        <div class="card-header py-4 border-0 text-center" style="background:linear-gradient(135deg,#003366,#005599);">
+          <h4 class="text-white fw-bold mb-1">Loan #{{ loan.id }}</h4>
+          <span class="badge bg-{{ 'success' if loan.status.value == 'approved' else 'warning' if loan.status.value == 'pending' else 'danger' if loan.status.value == 'rejected' else 'primary' }} fs-6">
+            {{ loan.status.value|title }}
+          </span>
+        </div>
+        <div class="card-body p-4">
+          <div class="row mb-3">
+            <div class="col-6"><p class="text-muted small mb-1">Amount Requested</p><h5 class="fw-bold">PKR {{ "{:,.2f}".format(loan.amount_requested) }}</h5></div>
+            <div class="col-6"><p class="text-muted small mb-1">Amount Approved</p><h5 class="fw-bold">{{ "PKR {:,.2f}".format(loan.amount_approved) if loan.amount_approved else '-' }}</h5></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-6"><p class="text-muted small mb-1">Interest Rate</p><p class="fw-semibold">{{ loan.interest_rate }}%</p></div>
+            <div class="col-6"><p class="text-muted small mb-1">Tenure</p><p class="fw-semibold">{{ loan.tenure_months }} months</p></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-6"><p class="text-muted small mb-1">Monthly EMI</p><p class="fw-semibold">{{ "PKR {:,.2f}".format(loan.emi_amount) if loan.emi_amount else '-' }}</p></div>
+            <div class="col-6"><p class="text-muted small mb-1">Purpose</p><p class="fw-semibold">{{ loan.purpose or '-' }}</p></div>
+          </div>
+          {% if loan.description %}<div class="mb-3"><p class="text-muted small mb-1">Description</p><p>{{ loan.description }}</p></div>{% endif %}
+          <hr>
+          <div class="row">
+            <div class="col-6"><p class="text-muted small mb-1">Applied On</p><p class="fw-semibold">{{ loan.applied_at.strftime('%d %b %Y') if loan.applied_at else '-' }}</p></div>
+            <div class="col-6"><p class="text-muted small mb-1">Approved On</p><p class="fw-semibold">{{ loan.approved_at.strftime('%d %b %Y') if loan.approved_at else '-' }}</p></div>
+          </div>
+          <a href="{{ url_for('loans.my_loans') }}" class="btn btn-outline-primary w-100 mt-3">Back to My Loans</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

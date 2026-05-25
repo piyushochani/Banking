@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <div class="row">
+    <div class="col-md-4 mb-4">
+      <div class="card border-0 shadow-sm h-100" style="border-radius:16px; overflow:hidden;">
+        <div class="card-header py-4 border-0 text-center" style="background:linear-gradient(135deg,#003366,#005599);">
+          <i class="fas fa-credit-card fa-2x mb-2" style="color:#FFD700;"></i>
+          <h5 class="text-white fw-bold mb-0">{{ account.account_type.value|title }} Account</h5>
+          <code class="text-white-50 small"># {{ account.account_number }}</code>
+        </div>
+        <div class="card-body p-4">
+          <div class="text-center mb-4">
+            <p class="text-muted small mb-1">Current Balance</p>
+            <h2 class="fw-bold" style="color:#003366;">PKR {{ "{:,.2f}".format(account.balance) }}</h2>
+            <span class="badge bg-{{ 'success' if account.status.value == 'active' else 'warning' }}">{{ account.status.value }}</span>
+          </div>
+          <hr>
+          <p class="text-muted small mb-1">Owner</p>
+          <p class="fw-semibold">{{ account.user.full_name }}</p>
+          <p class="text-muted small mb-1">Interest Rate</p>
+          <p class="fw-semibold">{{ account.interest_rate }}%</p>
+          <p class="text-muted small mb-1">Opened</p>
+          <p class="fw-semibold">{{ account.created_at.strftime('%B %d, %Y') if account.created_at else '-' }}</p>
+
+          {% if current_user.get_role() in ['admin', 'staff'] %}
+          <hr>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('transactions.deposit') }}" class="btn btn-success btn-sm">Deposit</a>
+            <a href="{{ url_for('transactions.withdraw') }}" class="btn btn-danger btn-sm">Withdraw</a>
+          </div>
+          {% endif %}
+          {% if current_user.get_role() == 'client' %}
+          <hr>
+          <a href="{{ url_for('transactions.transfer') }}" class="btn btn-primary btn-sm w-100">Transfer</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm" style="border-radius:16px;">
+        <div class="card-header bg-white border-0 pt-4">
+          <h5 class="fw-bold mb-0" style="color:#003366;">Transaction History</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="text-muted small text-uppercase">
+                <tr><th class="ps-4">Ref</th><th>Type</th><th>Amount</th><th>Status</th><th class="pe-4">Date</th></tr>
+              </thead>
+              <tbody>
+                {% for txn in transactions %}
+                <tr>
+                  <td class="ps-4"><code class="small">{{ txn.transaction_id }}</code></td>
+                  <td><span class="badge bg-primary">{{ txn.transaction_type.value }}</span></td>
+                  <td class="fw-bold">PKR {{ "{:,.2f}".format(txn.amount) }}</td>
+                  <td><span class="badge bg-{{ 'success' if txn.status.value == 'success' else 'warning' }}">{{ txn.status.value }}</span></td>
+                  <td class="pe-4 text-muted small">{{ txn.timestamp.strftime('%d %b %Y') if txn.timestamp else '-' }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-center py-4 text-muted">No transactions yet</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <div class="row">
+    <div class="col-md-7">
+      <div class="card border-0 shadow-sm" style="border-radius:16px; overflow:hidden;">
+        <div class="card-header py-4 border-0" style="background:linear-gradient(135deg,#003366,#005599);">
+          <h4 class="text-white fw-bold mb-0 text-center">
+            <i class="fas fa-file-alt me-2" style="color:#FFD700;"></i>Apply for a Loan
+          </h4>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST" action="{{ url_for('loans.apply_loan') }}">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">{{ form.purpose.label }}</label>
+              {{ form.purpose(class="form-select") }}
+              {% for error in form.purpose.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">{{ form.amount.label }} (PKR)</label>
+              {{ form.amount(class="form-control", placeholder="10,000 – 1,000,000", id="loanAmount", oninput="calcEMI()") }}
+              {% for error in form.amount.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">{{ form.tenure_months.label }}</label>
+              {{ form.tenure_months(class="form-select", id="loanTenure", onchange="calcEMI()") }}
+              {% for error in form.tenure_months.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">{{ form.description.label }} (optional)</label>
+              {{ form.description(class="form-control", rows=2, placeholder="Brief description of your loan need") }}
+              {% for error in form.description.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <button type="submit" class="btn w-100 fw-bold py-2" style="background:#FFD700; color:#003366;">
+              <i class="fas fa-paper-plane me-2"></i>Submit Application
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMI Calculator -->
+    <div class="col-md-5">
+      <div class="card border-0 shadow-sm" style="border-radius:16px;">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-3" style="color:#003366;">
+            <i class="fas fa-calculator me-2"></i>EMI Calculator
+          </h5>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Interest Rate (%) <small class="text-muted">for estimate</small></label>
+            <input type="number" id="interestRate" class="form-control" value="12" min="1" max="30" step="0.1" oninput="calcEMI()">
+          </div>
+          <hr>
+          <div class="text-center py-3">
+            <p class="text-muted small mb-1">Estimated Monthly EMI</p>
+            <h2 class="fw-bold" style="color:#003366;">PKR <span id="emiResult">0</span></h2>
+            <p class="text-muted small" id="totalPayable"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function calcEMI() {
+  const P = parseFloat(document.getElementById('loanAmount').value) || 0;
+  const N = parseInt(document.getElementById('loanTenure').value) || 12;
+  const annualRate = parseFloat(document.getElementById('interestRate').value) || 12;
+  const R = annualRate / (12 * 100);
+  let emi = 0;
+  if (R === 0) { emi = P / N; }
+  else { emi = (P * R * Math.pow(1+R, N)) / (Math.pow(1+R, N) - 1); }
+  document.getElementById('emiResult').textContent = emi.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  document.getElementById('totalPayable').textContent = 'Total payable: PKR ' + (emi * N).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+calcEMI();
+</script>
+{% endblock %}

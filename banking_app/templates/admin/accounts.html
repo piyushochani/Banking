@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4 px-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0" style="color:#003366;"><i class="fas fa-university me-2"></i>All Accounts</h4>
+    <a href="{{ url_for('admin.create_account') }}" class="btn btn-sm fw-semibold" style="background:#FFD700;color:#003366;">
+      <i class="fas fa-plus me-1"></i>New Account
+    </a>
+  </div>
+  <div class="card border-0 shadow-sm mb-3" style="border-radius:10px;">
+    <div class="card-body py-2">
+      <form method="GET" class="d-flex gap-2">
+        <input type="text" name="q" value="{{ q }}" placeholder="Search account no., name, email..."
+               class="form-control form-control-sm" style="max-width:300px;">
+        <button type="submit" class="btn btn-sm btn-primary">Search</button>
+        <a href="{{ url_for('admin.accounts') }}" class="btn btn-sm btn-outline-secondary">Clear</a>
+      </form>
+    </div>
+  </div>
+  <div class="card border-0 shadow-sm" style="border-radius:12px;">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr><th class="ps-3">Account No.</th><th>Owner</th><th>Type</th><th>Balance</th><th>Status</th><th>Created</th><th></th></tr>
+          </thead>
+          <tbody>
+          {% for acc in accounts %}
+          <tr>
+            <td class="ps-3 font-monospace fw-semibold">{{ acc.account_number }}</td>
+            <td>{{ acc.user.full_name if acc.user else '—' }}<br>
+                <small class="text-muted">{{ acc.user.email if acc.user else '' }}</small></td>
+            <td>{{ acc.account_type.value|title }}</td>
+            <td class="fw-semibold">PKR {{ "{:,.2f}".format(acc.balance) }}</td>
+            <td>{% if acc.status.value=='active' %}<span class="badge bg-success">Active</span>
+                {% elif acc.status.value=='frozen' %}<span class="badge bg-warning text-dark">Frozen</span>
+                {% else %}<span class="badge bg-secondary">{{ acc.status.value|title }}</span>{% endif %}</td>
+            <td>{{ acc.created_at.strftime('%d %b %Y') }}</td>
+            <td><a href="{{ url_for('admin.view_account', account_id=acc.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="text-center text-muted py-4">No accounts found</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

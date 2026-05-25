@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+  <h2 class="fw-bold mb-4" style="color:#003366;">Pending Loan Applications</h2>
+  <div class="card border-0 shadow-sm" style="border-radius:12px;">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead style="background:#003366; color:white;">
+            <tr>
+              <th class="ps-4 py-3">ID</th><th>Client</th><th>Amount</th><th>Purpose</th><th>Tenure</th><th>Applied</th><th class="pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for loan in loans %}
+            <tr>
+              <td class="ps-4">#{{ loan.id }}</td>
+              <td>{{ loan.borrower.full_name }}</td>
+              <td class="fw-bold">PKR {{ "{:,.2f}".format(loan.amount_requested) }}</td>
+              <td>{{ loan.purpose or '-' }}</td>
+              <td>{{ loan.tenure_months }}mo</td>
+              <td class="text-muted small">{{ loan.applied_at.strftime('%d %b %Y') if loan.applied_at else '-' }}</td>
+              <td class="pe-4">
+                <a href="{{ url_for('loans.approve_loan', loan_id=loan.id) }}" class="btn btn-sm btn-success me-1">Approve</a>
+                <a href="{{ url_for('loans.reject_loan', loan_id=loan.id) }}" class="btn btn-sm btn-danger">Reject</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center py-5 text-muted">No pending applications</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center mb-3">
+    <a href="{{ url_for('admin.users') }}" class="btn btn-sm btn-outline-secondary me-3">
+      <i class="fas fa-arrow-left me-1"></i>Back
+    </a>
+    <h4 class="fw-bold mb-0" style="color:#003366;">User Profile</h4>
+  </div>
+
+  <div class="row g-4">
+    <!-- Profile Card -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm" style="border-radius:12px;">
+        <div class="card-body text-center py-4">
+          <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+               style="width:72px;height:72px;background:#003366;font-size:28px;color:#FFD700;">
+            {{ (user.full_name or 'U')[0]|upper }}
+          </div>
+          <h5 class="fw-bold mb-1">{{ user.full_name or '—' }}</h5>
+          <small class="text-muted d-block mb-2">{{ user.email }}</small>
+          {% if user.get_role() == 'admin' %}<span class="badge" style="background:#003366;">Admin</span>
+          {% elif user.get_role() == 'staff' %}<span class="badge bg-success">Staff</span>
+          {% else %}<span class="badge bg-primary">Client</span>{% endif %}
+          {% if user.is_active %}
+            <span class="badge bg-success ms-1">Active</span>
+          {% else %}
+            <span class="badge bg-danger ms-1">Frozen</span>
+          {% endif %}
+          <hr>
+          <p class="small text-muted mb-1"><i class="fas fa-phone me-2"></i>{{ user.phone or '—' }}</p>
+          <p class="small text-muted mb-0"><i class="fas fa-calendar me-2"></i>Joined {{ user.created_at.strftime('%d %b %Y') }}</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="card border-0 shadow-sm mt-3" style="border-radius:12px;">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">Quick Actions</h6>
+
+          <!-- Update Form -->
+          <form method="POST" action="{{ url_for('admin.update_user', user_id=user.id) }}" class="mb-3">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text" name="full_name" value="{{ user.full_name or '' }}" class="form-control form-control-sm mb-2" placeholder="Full name">
+            <input type="text" name="phone" value="{{ user.phone or '' }}" class="form-control form-control-sm mb-2" placeholder="Phone">
+            <select name="role" class="form-select form-select-sm mb-2">
+              <option value="client" {% if user.get_role()=='client' %}selected{% endif %}>Client</option>
+              <option value="staff"  {% if user.get_role()=='staff'  %}selected{% endif %}>Staff</option>
+              <option value="admin"  {% if user.get_role()=='admin'  %}selected{% endif %}>Admin</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-primary w-100">
+              <i class="fas fa-save me-1"></i>Update
+            </button>
+          </form>
+
+          <!-- Freeze Toggle -->
+          <form method="POST" action="{{ url_for('admin.toggle_freeze_user', user_id=user.id) }}" class="mb-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% if user.id != current_user.id %}
+            <button type="submit" class="btn btn-sm w-100 {% if user.is_active %}btn-warning{% else %}btn-success{% endif %}">
+              <i class="fas fa-{% if user.is_active %}lock{% else %}unlock{% endif %} me-1"></i>
+              {% if user.is_active %}Freeze Account{% else %}Activate Account{% endif %}
+            </button>
+            {% endif %}
+          </form>
+
+          <!-- Delete -->
+          {% if user.id != current_user.id %}
+          <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}"
+                onsubmit="return confirm('Delete {{ user.full_name }}? This cannot be undone.')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-sm btn-danger w-100">
+              <i class="fas fa-trash me-1"></i>Delete User
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Accounts & Loans -->
+    <div class="col-md-8">
+      <!-- Accounts -->
+      <div class="card border-0 shadow-sm mb-3" style="border-radius:12px;">
+        <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between">
+          <h6 class="fw-bold mb-0" style="color:#003366;"><i class="fas fa-university me-2"></i>Bank Accounts</h6>
+          <a href="{{ url_for('admin.create_account') }}" class="btn btn-xs btn-sm" style="background:#FFD700;color:#003366;font-size:12px;">+ Add Account</a>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0 small">
+            <thead class="table-light"><tr><th class="ps-3">Account No.</th><th>Type</th><th>Balance</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+            {% for acc in accounts %}
+            <tr>
+              <td class="ps-3 font-monospace">{{ acc.account_number }}</td>
+              <td>{{ acc.account_type.value|title }}</td>
+              <td class="fw-semibold">PKR {{ "{:,.2f}".format(acc.balance) }}</td>
+              <td>{% if acc.status.value=='active' %}<span class="badge bg-success">Active</span>
+                  {% else %}<span class="badge bg-danger">{{ acc.status.value|title }}</span>{% endif %}</td>
+              <td><a href="{{ url_for('admin.view_account', account_id=acc.id) }}" class="btn btn-sm btn-outline-primary" style="font-size:11px;">View</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted py-3">No accounts</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Loans -->
+      <div class="card border-0 shadow-sm" style="border-radius:12px;">
+        <div class="card-header bg-white border-0 pt-3 pb-0">
+          <h6 class="fw-bold mb-0" style="color:#003366;"><i class="fas fa-file-invoice me-2"></i>Loan Applications</h6>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0 small">
+            <thead class="table-light"><tr><th class="ps-3">Amount</th><th>Tenure</th><th>Status</th><th>Applied</th><th></th></tr></thead>
+            <tbody>
+            {% for loan in loans %}
+            <tr>
+              <td class="ps-3">PKR {{ "{:,.0f}".format(loan.amount_requested) }}</td>
+              <td>{{ loan.tenure_months }} mo.</td>
+              <td>
+                {% if loan.status.value=='pending' %}<span class="badge bg-warning text-dark">Pending</span>
+                {% elif loan.status.value=='approved' %}<span class="badge bg-success">Approved</span>
+                {% elif loan.status.value=='rejected' %}<span class="badge bg-danger">Rejected</span>
+                {% else %}<span class="badge bg-secondary">{{ loan.status.value|title }}</span>{% endif %}
+              </td>
+              <td>{{ loan.applied_at.strftime('%d %b %Y') }}</td>
+              <td>
+                {% if loan.status.value == 'pending' %}
+                <a href="{{ url_for('admin.approve_loan', loan_id=loan.id) }}" class="btn btn-sm btn-success" style="font-size:11px;">Approve</a>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted py-3">No loans</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+  <!-- Welcome Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="fw-bold mb-1" style="color:#003366;">Welcome back, {{ current_user.full_name }}!</h2>
+          <p class="text-muted mb-0">Here's your account overview</p>
+        </div>
+        <div>
+          {% if current_user.get_role() == 'client' %}
+          <a href="{{ url_for('accounts.create') }}" class="btn btn-warning fw-bold">
+            <i class="fas fa-plus me-1"></i> New Account
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Cards -->
+  <div class="row mb-4">
+    {% if accounts %}
+      {% for account in accounts %}
+      <div class="col-md-4 mb-3">
+        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #FFD700 !important; border-radius:12px;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <p class="text-muted small mb-1 text-uppercase fw-bold">{{ account.account_type.value }} Account</p>
+                <p class="text-muted small mb-0"># {{ account.account_number }}</p>
+              </div>
+              <span class="badge bg-success">{{ account.status.value }}</span>
+            </div>
+            <h3 class="fw-bold mb-0" style="color:#003366;">
+              PKR {{ "{:,.2f}".format(account.balance) }}
+            </h3>
+            <p class="text-muted small mt-1 mb-3">Current Balance</p>
+            <a href="{{ url_for('accounts.view', account_id=account.id) }}" class="btn btn-outline-primary btn-sm">
+              View Details
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="col-12">
+        <div class="card border-0 shadow-sm text-center py-5" style="border-radius:12px;">
+          <div class="card-body">
+            <i class="fas fa-university fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No accounts yet</h5>
+            <p class="text-muted">Open your first bank account to get started</p>
+            {% if current_user.get_role() == 'client' %}
+            <a href="{{ url_for('accounts.create') }}" class="btn btn-warning fw-bold mt-2">
+              <i class="fas fa-plus me-1"></i> Open Account
+            </a>
+            {% else %}
+            <p class="text-muted small">Accounts are created by staff/admin for clients.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Quick Actions (staff/admin) -->
+  {% if current_user.get_role() in ['admin', 'staff'] %}
+  <div class="row mb-4">
+    <div class="col-12">
+      <h5 class="fw-bold mb-3" style="color:#003366;">Quick Actions</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{{ url_for('accounts.list') }}" class="btn btn-outline-primary">
+          <i class="fas fa-list me-1"></i> All Accounts
+        </a>
+        <a href="{{ url_for('accounts.create') }}" class="btn btn-outline-success">
+          <i class="fas fa-plus me-1"></i> Create Account
+        </a>
+        <a href="{{ url_for('transactions.history') }}" class="btn btn-outline-secondary">
+          <i class="fas fa-history me-1"></i> Transactions
+        </a>
+        <a href="{{ url_for('loans.pending') }}" class="btn btn-outline-warning">
+          <i class="fas fa-file-alt me-1"></i> Pending Loans
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Recent Transactions -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm" style="border-radius:12px;">
+        <div class="card-header bg-white border-0 pt-4 pb-0">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0" style="color:#003366;">Recent Transactions</h5>
+            <a href="{{ url_for('transactions.history') }}" class="btn btn-sm btn-outline-primary">View All</a>
+          </div>
+        </div>
+        <div class="card-body">
+          {% if recent_transactions %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr class="text-muted small text-uppercase">
+                  <th>Reference</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for txn in recent_transactions %}
+                <tr>
+                  <td><code>{{ txn.transaction_id }}</code></td>
+                  <td>
+                    {% if txn.transaction_type.value == 'deposit' %}
+                      <span class="badge bg-success-subtle text-success">Deposit</span>
+                    {% elif txn.transaction_type.value == 'withdrawal' %}
+                      <span class="badge bg-danger-subtle text-danger">Withdrawal</span>
+                    {% else %}
+                      <span class="badge bg-primary-subtle text-primary">Transfer</span>
+                    {% endif %}
+                  </td>
+                  <td class="fw-bold">PKR {{ "{:,.2f}".format(txn.amount) }}</td>
+                  <td>
+                    <span class="badge bg-{{ 'success' if txn.status.value == 'success' else 'warning' if txn.status.value == 'pending' else 'danger' }}">
+                      {{ txn.status.value }}
+                    </span>
+                  </td>
+                  <td class="text-muted small">{{ txn.timestamp.strftime('%d %b %Y, %I:%M %p') if txn.timestamp else '-' }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <i class="fas fa-receipt fa-2x text-muted mb-2"></i>
+            <p class="text-muted">No transactions yet</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

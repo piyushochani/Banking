@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content_public %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card border-0 shadow" style="border-radius:16px; overflow:hidden;">
+        <div class="card-header text-center py-4 border-0" style="background:linear-gradient(135deg,#003366,#005599);">
+          <i class="fas fa-lock fa-2x mb-2" style="color:#FFD700;"></i>
+          <h4 class="text-white fw-bold mb-0">Welcome Back</h4>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST" action="{{ url_for('auth.login') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Email Address</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Password</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+              </div>
+            </div>
+
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" name="remember" id="remember">
+              <label class="form-check-label" for="remember">Remember me</label>
+            </div>
+
+            <button type="submit" class="btn w-100 fw-bold py-2" style="background:#FFD700; color:#003366;">
+              <i class="fas fa-sign-in-alt me-2"></i>Login
+            </button>
+          </form>
+          <hr>
+          <p class="text-center text-muted mb-0">
+            Don't have an account? <a href="{{ url_for('auth.register') }}" style="color:#003366;" class="fw-bold">Register here</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content_public %}

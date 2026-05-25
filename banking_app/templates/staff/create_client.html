@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card border-0 shadow-sm" style="border-radius:16px;overflow:hidden;">
+        <div class="card-header py-4 border-0 text-center" style="background:linear-gradient(135deg,#003366,#005599);">
+          <i class="fas fa-user-plus fa-2x mb-2" style="color:#FFD700;"></i>
+          <h4 class="text-white fw-bold mb-0">Register New Client</h4>
+        </div>
+        <div class="card-body p-4">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for cat, msg in messages %}<div class="alert alert-{{ cat }} py-2">{{ msg }}</div>{% endfor %}
+          {% endwith %}
+          <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Full Name</label>
+              <input type="text" name="full_name" class="form-control" required placeholder="e.g. Muhammad Ali">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Email Address</label>
+              <input type="email" name="email" class="form-control" required placeholder="client@email.com">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Phone Number</label>
+              <input type="text" name="phone" class="form-control" required placeholder="03XXXXXXXXX">
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Temporary Password</label>
+              <input type="password" name="password" class="form-control" required placeholder="Client's initial password">
+            </div>
+            <button type="submit" class="btn w-100 fw-bold py-2" style="background:#FFD700;color:#003366;">
+              <i class="fas fa-user-check me-2"></i>Create Client
+            </button>
+            <a href="{{ url_for('staff.clients') }}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

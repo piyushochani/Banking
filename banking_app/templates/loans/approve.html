@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm" style="border-radius:16px; overflow:hidden;">
+        <div class="card-header py-4 border-0 text-center" style="background:linear-gradient(135deg,#003366,#005599);">
+          <i class="fas fa-check-circle fa-2x mb-2" style="color:#FFD700;"></i>
+          <h4 class="text-white fw-bold mb-0">Approve Loan #{{ loan.id }}</h4>
+        </div>
+        <div class="card-body p-4">
+          <div class="alert alert-info">
+            <strong>{{ loan.borrower.full_name }}</strong> requested
+            <strong>PKR {{ "{:,.2f}".format(loan.amount_requested) }}</strong>
+            for {{ loan.tenure_months }} months ({{ loan.purpose }}).
+          </div>
+          <form method="POST" action="{{ url_for('loans.approve_loan', loan_id=loan.id) }}">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">{{ form.approved_amount.label }} (PKR)</label>
+              {{ form.approved_amount(class="form-control") }}
+              {% for error in form.approved_amount.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">{{ form.interest_rate.label }}</label>
+              {{ form.interest_rate(class="form-control", value="12") }}
+              {% for error in form.interest_rate.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">{{ form.tenure_months.label }}</label>
+              {{ form.tenure_months(class="form-select") }}
+              {% for error in form.tenure_months.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 fw-bold py-2">
+              <i class="fas fa-check me-2"></i>Approve & Disburse
+            </button>
+            <a href="{{ url_for('loans.pending_loans') }}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm" style="border-radius:16px;overflow:hidden;">
+        <div class="card-header py-4 border-0 text-center" style="background:linear-gradient(135deg,#1a5276,#27ae60);">
+          <i class="fas fa-check-circle fa-2x mb-2 text-white"></i>
+          <h4 class="text-white fw-bold mb-0">Approve Loan #{{ loan.id }}</h4>
+        </div>
+        <div class="card-body p-4">
+          <div class="alert alert-info py-2 small">
+            <strong>{{ loan.borrower.full_name if loan.borrower else '—' }}</strong> requested
+            <strong>PKR {{ "{:,.0f}".format(loan.amount_requested) }}</strong>
+            for <strong>{{ loan.tenure_months }} months</strong>
+            {% if loan.purpose %} — {{ loan.purpose }}{% endif %}
+          </div>
+          <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Approved Amount (PKR)</label>
+              <input type="number" name="approved_amount" class="form-control"
+                     value="{{ loan.amount_requested }}" min="1" step="0.01" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Annual Interest Rate (%)</label>
+              <input type="number" name="interest_rate" class="form-control"
+                     value="12" min="0" max="50" step="0.1" required>
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Tenure (Months)</label>
+              <select name="tenure_months" class="form-select">
+                {% for m in [3,6,12,24,36,48,60] %}
+                <option value="{{ m }}" {% if m==loan.tenure_months %}selected{% endif %}>{{ m }} months</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" class="btn btn-success w-100 fw-bold py-2">
+              <i class="fas fa-check me-2"></i>Approve & Notify
+            </button>
+            <a href="{{ url_for('admin.loans') }}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

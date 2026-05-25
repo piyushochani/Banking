@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4 px-4">
+  <div class="d-flex align-items-center mb-3">
+    <a href="{{ url_for('staff.clients') }}" class="btn btn-sm btn-outline-secondary me-3">
+      <i class="fas fa-arrow-left me-1"></i>Back
+    </a>
+    <h4 class="fw-bold mb-0" style="color:#003366;">Account Statement</h4>
+  </div>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm mb-3" style="border-radius:12px;overflow:hidden;">
+        <div class="card-header py-3 border-0" style="background:linear-gradient(135deg,#003366,#005599);">
+          <p class="text-white-50 small mb-0">Account Number</p>
+          <h5 class="text-white fw-bold font-monospace mb-0">{{ account.account_number }}</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted small">Owner</span>
+            <span class="fw-semibold small">{{ account.user.full_name if account.user else '—' }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted small">Type</span>
+            <span class="small">{{ account.account_type.value|title }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted small">Balance</span>
+            <span class="fw-bold" style="color:#003366;">PKR {{ "{:,.2f}".format(account.balance) }}</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted small">Status</span>
+            {% if account.status.value=='active' %}<span class="badge bg-success">Active</span>
+            {% else %}<span class="badge bg-warning text-dark">{{ account.status.value|title }}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-3" style="border-radius:12px;">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3" style="color:#003366;"><i class="fas fa-plus-circle me-2"></i>Deposit</h6>
+          <form method="POST" action="{{ url_for('staff.deposit', account_id=account.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="number" name="amount" class="form-control form-control-sm mb-2"
+                   placeholder="Amount (PKR)" min="1" step="0.01" required>
+            <input type="text" name="description" class="form-control form-control-sm mb-2"
+                   placeholder="Description" value="Staff deposit">
+            <button type="submit" class="btn btn-success btn-sm w-100 fw-semibold">
+              <i class="fas fa-plus me-1"></i>Deposit
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <form method="POST" action="{{ url_for('staff.toggle_freeze_account', account_id=account.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn w-100 fw-semibold {% if account.status.value=='active' %}btn-warning{% else %}btn-success{% endif %}">
+          {% if account.status.value=='active' %}🔒 Freeze Account{% else %}🔓 Unfreeze Account{% endif %}
+        </button>
+      </form>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm" style="border-radius:12px;">
+        <div class="card-header bg-white border-0 pt-3 pb-0">
+          <h6 class="fw-bold mb-0" style="color:#003366;"><i class="fas fa-history me-2"></i>Transaction History</h6>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0 small">
+            <thead class="table-light">
+              <tr><th class="ps-3">Ref ID</th><th>Type</th><th>Amount</th><th>Description</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+            {% for txn in txns.items %}
+            <tr>
+              <td class="ps-3 font-monospace">{{ txn.transaction_id }}</td>
+              <td>{{ txn.transaction_type.value|title }}</td>
+              <td class="fw-semibold {% if txn.to_account_id==account.id %}text-success{% else %}text-danger{% endif %}">
+                {% if txn.to_account_id==account.id %}+{% else %}-{% endif %}PKR {{ "{:,.2f}".format(txn.amount) }}
+              </td>
+              <td>{{ txn.description or '—' }}</td>
+              <td>{{ txn.timestamp.strftime('%d %b %Y %H:%M') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted py-4">No transactions yet</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% if txns.pages > 1 %}
+        <div class="card-footer bg-white border-0">
+          <nav><ul class="pagination pagination-sm mb-0 justify-content-center">
+            {% for p in txns.iter_pages() %}{% if p %}
+            <li class="page-item {% if p==txns.page %}active{% endif %}">
+              <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+            </li>{% endif %}{% endfor %}
+          </ul></nav>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
