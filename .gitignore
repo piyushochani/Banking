@@ -72,3 +72,6 @@ htmlcov/
 uploads/
 media/
 static/uploads/
+
+# Screenshots
+screenshots/
